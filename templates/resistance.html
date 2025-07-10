@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resistance Prediction</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(-45deg, #74ebd5, #acb6e5, #ffffff);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            animation: slideUp 1.2s ease-in-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h1 {
+            text-align: center;
+            color: #444;
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            border: 1px solid #5cb85c;
+            box-shadow: 0 0 5px rgba(92, 184, 92, 0.5);
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #43cea2, #185a9d);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #185a9d, #43cea2);
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #result {
+            text-align: center;
+            margin-top: 30px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #185a9d;
+            padding: 20px;
+            background: rgba(67, 206, 162, 0.1);
+            border-radius: 10px;
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Resistance Prediction</h1>
+        <form id="resistanceForm">
+            <label for="species">Select Species:</label>
+            <select id="species">
+                <option value="Clostridium difficile">Clostridium difficile</option>
+                <option value="Enterococcus faecium">Enterococcus faecium</option>
+                <option value="Escherichia coli">Escherichia coli</option>
+                <option value="Klebsiella pneumoniae">Klebsiella pneumoniae</option>
+                <option value="Mycobacterium tuberculosis">Mycobacterium tuberculosis</option>
+                <option value="Pseudomonas aeruginosa">Pseudomonas aeruginosa</option>
+                <option value="Salmonella enterica">Salmonella enterica</option>
+                <option value="Staphylococcus aureus">Staphylococcus aureus</option>
+            </select>
+
+            <label for="sampleSource">Select Sample Source:</label>
+            <select id="sampleSource">
+                <option value="Bone">Bone</option>
+                <option value="CSF">CSF</option>
+                <option value="Eye">Eye</option>
+                <option value="Skin">Skin</option>
+                <option value="Sputum">Sputum</option>
+                <option value="Urine">Urine</option>
+                <option value="Wound">Wound</option>
+            </select>
+
+            <label for="hospitalUnit">Select Hospital Unit:</label>
+            <select id="hospitalUnit">
+                <option value="General Ward">General Ward</option>
+                <option value="ICU">ICU</option>
+                <option value="Long-term Care">Long-term Care</option>
+                <option value="Outpatient">Outpatient</option>
+                <option value="Surgical Unit">Surgical Unit</option>
+            </select>
+
+            <label for="antibiotic">Select Antibiotic:</label>
+            <select id="antibiotic">
+                <option value="Carbapenem">Carbapenem</option>
+                <option value="Ciprofloxacin">Ciprofloxacin</option>
+                <option value="Colistin">Colistin</option>
+                <option value="Erythromycin">Erythromycin</option>
+                <option value="Methicillin">Methicillin</option>
+                <option value="Penicillin">Penicillin</option>
+                <option value="Tetracycline">Tetracycline</option>
+                <option value="Vancomycin">Vancomycin</option>
+            </select>
+
+            <label for="blaCTXM">Presence of blaCTX-M gene:</label>
+            <select id="blaCTXM">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+
+            <label for="blaKPC">Presence of blaKPC gene:</label>
+            <select id="blaKPC">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+
+            <label for="mcr1">Presence of mcr-1 gene:</label>
+            <select id="mcr1">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+
+            <label for="mecA">Presence of mecA gene:</label>
+            <select id="mecA">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+
+            <label for="tetM">Presence of tetM gene:</label>
+            <select id="tetM">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+
+            <label for="vanA">Presence of vanA gene:</label>
+            <select id="vanA">
+                <option value="1">Yes</option>
+                <option value="0">No</option>
+            </select>
+
+            <label for="gender">Gender:</label>
+            <select id="gender">
+                <option value="1">Male</option>
+                <option value="0">Female</option>
+            </select>
+
+            <label for="region">Region:</label>
+            <select id="region">
+                <option value="Asia">Asia</option>
+                <option value="Europe">Europe</option>
+                <option value="North America">North America</option>
+                <option value="South America">South America</option>
+            </select>
+
+            <label for="mic">MIC (μg/mL):</label>
+            <input type="number" id="mic" step="0.01">
+
+            <label for="age">Age:</label>
+            <input type="number" id="age">
+
+            <label for="year">Year:</label>
+            <input type="number" id="year">
+
+            <button type="button" onclick="predictResistance()">Predict Resistance</button>
+        </form>
+        <div id="result">Prediction: This is where the resistance level will appear.</div>
+    </div>
+
+    <script>
+        async function predictResistance() {
+            const formData = {
+                species: document.getElementById('species').value,
+                sampleSource: document.getElementById('sampleSource').value,
+                hospitalUnit: document.getElementById('hospitalUnit').value,
+                antibiotic: document.getElementById('antibiotic').value,
+                blaCTXM: document.getElementById('blaCTXM').value,
+                blaKPC: document.getElementById('blaKPC').value,
+                mcr1: document.getElementById('mcr1').value,
+                mecA: document.getElementById('mecA').value,
+                tetM: document.getElementById('tetM').value,
+                vanA: document.getElementById('vanA').value,
+                gender: document.getElementById('gender').value,
+                region: document.getElementById('region').value,
+                mic: document.getElementById('mic').value,
+                age: document.getElementById('age').value,
+                year: document.getElementById('year').value,
+            };
+
+            try {
+                const response = await fetch('/resistance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json();
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('result').innerText = `Prediction: Resistance Level is ${data.Resistance_Level}`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('result').innerText = 'Error: Unable to fetch prediction.';
+            }
+        }
+    </script>
+</body>
+
+</html>

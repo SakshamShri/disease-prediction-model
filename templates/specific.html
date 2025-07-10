@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Medical Diagnosis System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #ecf0f1;
+            --dark-text: #2c3e50;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: var(--dark-text);
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color)) !important;
+            box-shadow: var(--shadow);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--white) !important;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9) !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--white) !important;
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        .page-header h1 {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .search-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #d4d4d4;
+            border-top: none;
+            z-index: 99;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--white);
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            background-color: var(--white);
+            border-bottom: 1px solid #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+        .autocomplete-item:hover {
+            background-color: var(--secondary-color);
+            color: var(--white);
+        }
+
+        .selected-symptoms-container {
+            min-height: 80px;
+            border: 2px dashed #bdc3c7;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .selected-symptoms-container:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .selected-symptom-tag {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: var(--white);
+            padding: 8px 16px;
+            margin: 4px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .selected-symptom-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .remove-symptom {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-weight: bold;
+            margin-left: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.2s ease;
+        }
+
+        .remove-symptom:hover {
+            color: #ffeb3b;
+            transform: scale(1.2);
+        }
+
+        .symptom-counter {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: var(--white);
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            border-radius: var(--border-radius);
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color), #2980b9);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, var(--secondary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-color), #c0392b);
+            color: var(--white);
+            font-size: 1.1rem;
+            padding: 15px 30px;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c0392b, var(--accent-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-outline-danger {
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+            background: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background: var(--accent-color);
+            color: var(--white);
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .results-header h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .predicted-disease {
+            background: linear-gradient(135deg, var(--success-color), #2ecc71);
+            color: var(--white);
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+            color: var(--white);
+        }
+
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            border: none;
+        }
+
+        .modal-body {
+            padding: 2rem;
+            background: var(--white);
+        }
+
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #f8f9fa;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+
+        .speech-section {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .speech-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .speech-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .transcription-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                padding: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-heartbeat me-3" style="font-size: 2rem; color: #e74c3c;"></i>
+                <a class="navbar-brand" href="#">Medical Diagnosis System</a>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/home"><i class="fas fa-home me-1"></i>Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about"><i class="fas fa-info-circle me-1"></i>About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact"><i class="fas fa-envelope me-1"></i>Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/developers"><i class="fas fa-users me-1"></i>Developers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/blog"><i class="fas fa-blog me-1"></i>Blog</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="main-container">
+            <div class="page-header">
+                <h1><i class="fas fa-stethoscope me-3"></i>Medical Diagnosis</h1>
+                <p>Enter your symptoms to get AI-powered disease predictions and treatment recommendations</p>
+            </div>
+
+            <div class="search-section">
+                <form action="/predict" method="post">
+                    <div class="form-group position-relative">
+                        <label for="symptomSearch" class="form-label">
+                            <i class="fas fa-search me-2"></i>Search Symptoms
+                        </label>
+                        <input type="text" class="form-control" id="symptomSearch" placeholder="Type to search symptoms (e.g., fever, headache, cough)...">
+                        <div id="autocompleteList" class="autocomplete-items"></div>
+                    </div>
+                    
+                    <div class="form-group mt-4">
+                        <label class="form-label">
+                            <i class="fas fa-list me-2"></i>Selected Symptoms
+                        </label>
+                        <div id="selectedSymptomsDisplay" class="selected-symptoms-container">
+                            <!-- Selected symptoms will be displayed here -->
+                        </div>
+                        <input type="hidden" id="selectedSymptomsInput" name="symptoms" value="">
+                        <div class="symptom-counter">
+                            <span><i class="fas fa-check-circle me-2"></i>Selected Symptoms: <span id="selectedSymptomsCount">0</span></span>
+                            <button type="button" id="clearAllBtn" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash me-1"></i>Clear All
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="speech-section">
+                        <button type="button" id="startSpeechRecognition" class="speech-btn">
+                            <i class="fas fa-microphone me-2"></i>Start Speech Recognition
+                        </button>
+                        <div id="transcription" class="transcription-box"></div>
+                    </div>
+
+            {% if message %}
+                    <div class="alert alert-warning mt-3" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                    </div>
+            {% endif %}
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-robot me-2"></i>Get AI Diagnosis
+                        </button>
+                    </div>
+        </form>
+    </div>
+
+    {% if predicted_disease %}
+            <div class="results-section">
+                <div class="results-header">
+                    <h2><i class="fas fa-chart-line me-3"></i>AI Diagnosis Results</h2>
+                    <p>Based on your symptoms, here are our recommendations</p>
+                </div>
+                
+                <div class="predicted-disease">
+                    <i class="fas fa-diagnosis me-2"></i>{{ predicted_disease }}
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#diseaseModal">
+                        <i class="fas fa-disease me-2"></i>Disease
+                    </button>
+                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#precautionModal">
+                        <i class="fas fa-shield-alt me-2"></i>Precautions
+                    </button>
+                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#medicationsModal">
+                        <i class="fas fa-pills me-2"></i>Medications
+                    </button>
+                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#workoutsModal">
+                        <i class="fas fa-dumbbell me-2"></i>Workouts
+                    </button>
+                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#dietsModal">
+                        <i class="fas fa-apple-alt me-2"></i>Diet
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal fade" id="diseaseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-disease me-2"></i>Predicted Disease</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <h4 class="text-center text-primary">{{ predicted_disease }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="precautionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-shield-alt me-2"></i>Precautions</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {% if dis_pre %}
+                        <ul class="list-group">
+                            {% for precaution in dis_pre[0] %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-check-circle text-success me-2"></i>{{ precaution }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No precautions available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="medicationsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-pills me-2"></i>Medications</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {% if dis_anti %}
+                        <ul class="list-group">
+                            {% for medication in dis_anti[0] %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-pills text-primary me-2"></i>{{ medication }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No medication recommendations available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="workoutsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-dumbbell me-2"></i>Workout Recommendations</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {% if dis_work %}
+                        <ul class="list-group">
+                            {% for workout in dis_work[0] %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-dumbbell text-warning me-2"></i>{{ workout }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No workout recommendations available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+      <div class="modal fade" id="dietsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-apple-alt me-2"></i>Diet Recommendations</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    {% if dis_die %}
+                        <ul class="list-group">
+                            {% for diet in dis_die[0] %}
+                                <li class="list-group-item">
+                                    <i class="fas fa-apple-alt text-success me-2"></i>{{ diet }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No diet recommendations available</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const symptomsSelect = document.getElementById('symptoms');
+        const selectedSymptomsCountSpan = document.getElementById('selectedSymptomsCount');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const symptomSearchInput = document.getElementById('symptomSearch');
+        const autocompleteList = document.getElementById('autocompleteList');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const selectedSymptomsDisplay = document.getElementById('selectedSymptomsDisplay');
+        const selectedSymptomsInput = document.getElementById('selectedSymptomsInput');
+
+        // Array to store selected symptoms
+        let selectedSymptoms = [];
+
+        // All available symptoms with their display names
+        const symptomsData = [
+            { value: "abdominal_pain", display: "Abdominal Pain" },
+            { value: "abdominal_swelling", display: "Abdominal Swelling" },
+            { value: "bad_breath", display: "Bad Breath" },
+            { value: "bleeding_gums", display: "Bleeding Gums" },
+            { value: "blood_in_sputum", display: "Blood in Sputum" },
+            { value: "bloody_stool", display: "Bloody Stool" },
+            { value: "blue_skin", display: "Blue Skin" },
+            { value: "blurred_vision", display: "Blurred Vision" },
+            { value: "body_ache", display: "Body Ache" },
+            { value: "burning_urination", display: "Burning Urination" },
+            { value: "chest_pain", display: "Chest Pain" },
+            { value: "chills", display: "Chills" },
+            { value: "cold_extremities", display: "Cold Extremities" },
+            { value: "confusion", display: "Confusion" },
+            { value: "cough", display: "Cough" },
+            { value: "crusting_skin", display: "Crusting Skin" },
+            { value: "dark_urine", display: "Dark Urine" },
+            { value: "dehydration", display: "Dehydration" },
+            { value: "delirium", display: "Delirium" },
+            { value: "diarrhea", display: "Diarrhea" },
+            { value: "difficulty_breathing", display: "Difficulty Breathing" },
+            { value: "difficulty_swallowing", display: "Difficulty Swallowing" },
+            { value: "difficulty_urinating", display: "Difficulty Urinating" },
+            { value: "discharge", display: "Discharge" },
+            { value: "dizziness", display: "Dizziness" },
+            { value: "dry_cough", display: "Dry Cough" },
+            { value: "ear_pain", display: "Ear Pain" },
+            { value: "facial_swelling", display: "Facial Swelling" },
+            { value: "fast_breathing", display: "Fast Breathing" },
+            { value: "fatigue", display: "Fatigue" },
+            { value: "fatigue_after_exercise", display: "Fatigue After Exercise" },
+            { value: "fever", display: "Fever" },
+            { value: "frequent_urination", display: "Frequent Urination" },
+            { value: "headache", display: "Headache" },
+            { value: "hearing_loss", display: "Hearing Loss" },
+            { value: "high_blood_pressure", display: "High Blood Pressure" },
+            { value: "hoarseness", display: "Hoarseness" },
+            { value: "increased_heart_rate", display: "Increased Heart Rate" },
+            { value: "involuntary_movements", display: "Involuntary Movements" },
+            { value: "irregular_heartbeat", display: "Irregular Heartbeat" },
+            { value: "itching", display: "Itching" },
+            { value: "joint_pain", display: "Joint Pain" },
+            { value: "light_sensitivity", display: "Light Sensitivity" },
+            { value: "loss_of_appetite", display: "Loss of Appetite" },
+            { value: "loss_of_smell", display: "Loss of Smell" },
+            { value: "loss_of_taste", display: "Loss of Taste" },
+            { value: "low_blood_pressure", display: "Low Blood Pressure" },
+            { value: "memory_loss", display: "Memory Loss" },
+            { value: "muscle_weakness", display: "Muscle Weakness" },
+            { value: "nausea", display: "Nausea" },
+            { value: "night_sweats", display: "Night Sweats" },
+            { value: "numbness", display: "Numbness" },
+            { value: "open_wounds", display: "Open Wounds" },
+            { value: "painful_skin", display: "Painful Skin" },
+            { value: "painful_swallowing", display: "Painful Swallowing" },
+            { value: "paleness", display: "Paleness" },
+            { value: "persistent_cough", display: "Persistent Cough" },
+            { value: "productive_cough", display: "Productive Cough" },
+            { value: "pus_discharge", display: "Pus Discharge" },
+            { value: "rash_with_blisters", display: "Rash with Blisters" },
+            { value: "red_eyes", display: "Red Eyes" },
+            { value: "red_spots", display: "Red Spots" },
+            { value: "runny_nose", display: "Runny Nose" },
+            { value: "seizures", display: "Seizures" },
+            { value: "shortness_of_breath", display: "Shortness of Breath" },
+            { value: "sinus_pain", display: "Sinus Pain" },
+            { value: "skin_rash", display: "Skin Rash" },
+            { value: "sneezing", display: "Sneezing" },
+            { value: "sore_ears", display: "Sore Ears" },
+            { value: "sore_throat", display: "Sore Throat" },
+            { value: "stiff_neck", display: "Stiff Neck" },
+            { value: "sunken_eyes", display: "Sunken Eyes" },
+            { value: "sweating", display: "Sweating" },
+            { value: "swelling", display: "Swelling" },
+            { value: "swollen_joints", display: "Swollen Joints" },
+            { value: "swollen_lymph_nodes", display: "Swollen Lymph Nodes" },
+            { value: "throat_tightness", display: "Throat Tightness" },
+            { value: "tingling", display: "Tingling" },
+            { value: "tooth_pain", display: "Tooth Pain" },
+            { value: "ulcers", display: "Ulcers" },
+            { value: "unusual_bruising", display: "Unusual Bruising" },
+            { value: "vomiting", display: "Vomiting" },
+            { value: "weight_loss", display: "Weight Loss" },
+            { value: "wheezing", display: "Wheezing" },
+            { value: "yellow_skin", display: "Yellow Skin" }
+        ];
+
+        function addSymptomToSelection(symptomValue, symptomDisplay) {
+            // Check if symptom already exists
+            if (!selectedSymptoms.some(s => s.value === symptomValue)) {
+                selectedSymptoms.push({ value: symptomValue, display: symptomDisplay });
+                updateSymptomsDisplay();
+                updateSymptomCounter();
+            }
+        }
+
+        function removeSymptom(symptomValue) {
+            selectedSymptoms = selectedSymptoms.filter(s => s.value !== symptomValue);
+            updateSymptomsDisplay();
+            updateSymptomCounter();
+        }
+
+        function updateSymptomsDisplay() {
+            selectedSymptomsDisplay.innerHTML = '';
+            selectedSymptoms.forEach(symptom => {
+                const tag = document.createElement('span');
+                tag.className = 'selected-symptom-tag';
+                tag.innerHTML = `
+                    ${symptom.display}
+                    <button type="button" class="remove-symptom" onclick="removeSymptom('${symptom.value}')">&times;</button>
+                `;
+                selectedSymptomsDisplay.appendChild(tag);
+            });
+            
+            // Update hidden input for form submission
+            selectedSymptomsInput.value = selectedSymptoms.map(s => s.value).join(',');
+        }
+
+        function populateAutocomplete() {
+            const searchTerm = symptomSearchInput.value.toLowerCase();
+            const filteredSymptoms = symptomsData.filter(symptom =>
+                symptom.display.toLowerCase().includes(searchTerm) ||
+                symptom.value.toLowerCase().includes(searchTerm)
+            );
+            
+            autocompleteList.innerHTML = '';
+            
+            filteredSymptoms.slice(0, 8).forEach(symptom => {
+                const item = document.createElement('div');
+                item.textContent = symptom.display;
+                item.classList.add('autocomplete-item');
+                item.addEventListener('click', () => {
+                    addSymptomToSelection(symptom.value, symptom.display);
+                    symptomSearchInput.value = '';
+                    autocompleteList.innerHTML = '';
+                });
+                autocompleteList.appendChild(item);
+            });
+        }
+
+        function updateSymptomCounter() {
+            selectedSymptomsCountSpan.textContent = selectedSymptoms.length;
+        }
+
+        symptomSearchInput.addEventListener('input', populateAutocomplete);
+        
+        // Hide autocomplete when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!symptomSearchInput.contains(e.target) && !autocompleteList.contains(e.target)) {
+                autocompleteList.innerHTML = '';
+            }
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            selectedSymptoms = [];
+            updateSymptomsDisplay();
+            updateSymptomCounter();
+        });
+
+        const startSpeechRecognitionButton = document.getElementById('startSpeechRecognition');
+        const transcriptionDiv = document.getElementById('transcription');
+
+        startSpeechRecognitionButton.addEventListener('click', () => {
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.onresult = (event) => {
+                transcriptionDiv.textContent = event.results[0][0].transcript;
+            };
+            recognition.start();
+        });
+    </script>
+  </body>
+</html>
